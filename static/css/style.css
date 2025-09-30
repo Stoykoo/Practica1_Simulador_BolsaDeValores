@@ -1,0 +1,16 @@
+/* ===== ARCHIVO PRINCIPAL CSS ===== */
+/* Este archivo importa todos los demás archivos CSS */
+
+/* Base y variables */
+@import url('base.css');
+
+/* Componentes reutilizables */
+@import url('components.css');
+
+/* Layout (navbar, footer) */
+@import url('layout.css');
+
+/* Páginas específicas */
+@import url('auth.css');
+@import url('dashboard.css');
+@import url('landing.css');

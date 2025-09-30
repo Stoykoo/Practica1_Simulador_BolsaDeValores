@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}StockFlow - Bolsa de Valores{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- CSS Personalizado -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+</head>
+<body>
+    <!-- Navbar Profesional -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <!-- Logo y Brand -->
+            <div class="nav-brand">
+                <div class="logo-wrapper">
+                    <i class="bi bi-graph-up-arrow logo-icon"></i>
+                    <div class="logo-text">
+                        <span class="logo-primary">Stock</span>
+                        <span class="logo-accent">Flow</span>
+                    </div>
+                </div>
+                <div class="brand-tagline">Financial Analytics</div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <div class="nav-menu">
+                <a href="{{ url_for('home') }}" class="nav-item">
+                    <i class="bi bi-house"></i>
+                    <span>Inicio</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard') }}" class="nav-item">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                {% endif %}
+                
+                <!-- ELIMINADO: Características -->
+                <!-- ELIMINADO: Mercados -->
+            </div>
+
+            <!-- User Actions -->
+            <div class="nav-actions">
+                <!-- Theme Toggle -->
+                
+
+                <!-- Auth Section -->
+                <div class="auth-section">
+                    {% if current_user.is_authenticated %}
+                        <div class="user-profile">
+                            <div class="user-avatar">
+                                <i class="bi bi-person-circle"></i>
+                            </div>
+                            <div class="user-info">
+                                <span class="user-name">{{ current_user.username }}</span>
+                                <span class="user-role">Inversionista</span>
+                            </div>
+                            <div class="user-dropdown">
+                                <a href="{{ url_for('dashboard') }}" class="dropdown-item">
+                                    <i class="bi bi-speedometer2"></i>
+                                    Dashboard
+                                </a>
+                                <a href="{{ url_for('logout') }}" class="dropdown-item logout">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    Cerrar Sesión
+                                </a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="auth-buttons">
+                            <a href="{{ url_for('login') }}" class="auth-btn secondary">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                                Iniciar Sesión
+                            </a>
+                            <a href="{{ url_for('registro') }}" class="auth-btn primary">
+                                <i class="bi bi-person-plus"></i>
+                                Registrarse
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <div class="mobile-logo">
+                <i class="bi bi-graph-up-arrow"></i>
+                <span>StockFlow</span>
+            </div>
+        </div>
+        
+        <div class="mobile-menu-items">
+            <a href="{{ url_for('home') }}" class="mobile-nav-item">
+                <i class="bi bi-house"></i>
+                Inicio
+            </a>
+            
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('dashboard') }}" class="mobile-nav-item">
+                <i class="bi bi-speedometer2"></i>
+                Dashboard
+            </a>
+            {% endif %}
+            
+            <!-- ELIMINADO: Características -->
+            <!-- ELIMINADO: Mercados -->
+        </div>
+
+        <div class="mobile-menu-footer">
+            {% if not current_user.is_authenticated %}
+            <div class="mobile-auth-buttons">
+                <a href="{{ url_for('login') }}" class="mobile-auth-btn secondary">Iniciar Sesión</a>
+                <a href="{{ url_for('registro') }}" class="mobile-auth-btn primary">Registrarse</a>
+            </div>
+            {% else %}
+            <div class="mobile-user-info">
+                <div class="mobile-user-avatar">
+                    <i class="bi bi-person-circle"></i>
+                </div>
+                <div class="mobile-user-details">
+                    <span class="mobile-user-name">{{ current_user.username }}</span>
+                    <span class="mobile-user-role">Inversionista</span>
+                </div>
+                <a href="{{ url_for('logout') }}" class="mobile-logout">
+                    <i class="bi bi-box-arrow-right"></i>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Mensajes Flash Modernos -->
+        <div class="flash-messages" id="flashMessages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}" data-category="{{ category }}">
+                            <div class="flash-icon">
+                                {% if category == 'success' %}
+                                    <i class="bi bi-check-circle-fill"></i>
+                                {% elif category == 'danger' %}
+                                    <i class="bi bi-exclamation-circle-fill"></i>
+                                {% elif category == 'warning' %}
+                                    <i class="bi bi-exclamation-triangle-fill"></i>
+                                {% else %}
+                                    <i class="bi bi-info-circle-fill"></i>
+                                {% endif %}
+                            </div>
+                            <div class="flash-content">
+                                <div class="flash-title">
+                                    {% if category == 'success' %}
+                                        ¡Éxito!
+                                    {% elif category == 'danger' %}
+                                        Error
+                                    {% elif category == 'warning' %}
+                                        Advertencia
+                                    {% else %}
+                                        Información
+                                    {% endif %}
+                                </div>
+                                <p class="flash-text">{{ message }}</p>
+                            </div>
+                            <button class="flash-close" onclick="this.parentElement.remove()">
+                                <i class="bi bi-x"></i>
+                            </button>
+                            <div class="flash-progress"></div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <i class="bi bi-graph-up-arrow"></i>
+                        <span>StockFlow</span>
+                    </div>
+                    <p class="footer-description">
+                        Plataforma avanzada para el seguimiento y análisis de mercados financieros.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link" title="Twitter">
+                            <i class="bi bi-twitter"></i>
+                        </a>
+                        <a href="#" class="social-link" title="LinkedIn">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+                        <a href="#" class="social-link" title="GitHub">
+                            <i class="bi bi-github"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h4 class="footer-title">Navegación</h4>
+                <a href="{{ url_for('home') }}" class="footer-link">Inicio</a>
+                <!-- ELIMINADO: Características -->
+                <!-- ELIMINADO: Mercados -->
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('dashboard') }}" class="footer-link">Dashboard</a>
+                {% endif %}
+            </div>
+            
+            <div class="footer-section">
+                <h4 class="footer-title">Recursos</h4>
+                <a href="#" class="footer-link">Documentación</a>
+                <a href="#" class="footer-link">API</a>
+                <a href="#" class="footer-link">Blog</a>
+                <a href="#" class="footer-link">Soporte</a>
+            </div>
+            
+            <div class="footer-section">
+                <h4 class="footer-title">Legal</h4>
+                <a href="#" class="footer-link">Términos de Servicio</a>
+                <a href="#" class="footer-link">Política de Privacidad</a>
+                <a href="#" class="footer-link">Aviso Legal</a>
+                <a href="#" class="footer-link">Cookies</a>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <div class="footer-bottom-content">
+                <p>&copy; 2025 StockFlow. Todos los derechos reservados.</p>
+                <div class="footer-bottom-links">
+                    <span>Desarrollado con</span>
+                    <i class="bi bi-heart-fill"></i>
+                    <span>para la comunidad financiera</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <!-- Scripts -->
+    {% block scripts %}{% endblock %}
+</body>
+</html>

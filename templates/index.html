@@ -1,0 +1,165 @@
+{% extends "layout.html" %}
+{% block content %}
+<!-- Hero Section -->
+<section class="hero fade-in">
+    <div class="hero-content">
+        <h1 class="hero-title">
+            Domina los Mercados con 
+            <span style="background: linear-gradient(135deg, #ffd700, #ff6b6b); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                Confianza Total
+            </span>
+        </h1>
+        <p class="hero-subtitle">
+            Plataforma avanzada de análisis bursátil en tiempo real. 
+            Monitorea tus inversiones, analiza tendencias y toma decisiones informadas.
+        </p>
+        <div class="hero-buttons">
+            {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('registro') }}" class="hero-btn primary">
+                    <i class="bi bi-rocket-takeoff"></i>
+                    Comenzar Gratis
+                </a>
+                <a href="#features" class="hero-btn secondary">
+                    <i class="bi bi-play-circle"></i>
+                    Ver Demo
+                </a>
+            {% else %}
+                <a href="{{ url_for('dashboard') }}" class="hero-btn primary">
+                    <i class="bi bi-speedometer2"></i>
+                    Ir al Dashboard
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features">
+    <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card fade-in" style="animation-delay: 0.1s;">
+            <div class="feature-icon float">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <h3 class="feature-title">Análisis en Tiempo Real</h3>
+            <p class="feature-description">
+                Datos de mercado actualizados al instante con gráficos interactivos 
+                y herramientas de análisis técnico avanzadas.
+            </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card fade-in" style="animation-delay: 0.2s;">
+            <div class="feature-icon float" style="animation-delay: 0.5s;">
+                <i class="bi bi-wallet2"></i>
+            </div>
+            <h3 class="feature-title">Gestión de Portafolio</h3>
+            <p class="feature-description">
+                Controla todas tus inversiones en un solo lugar con seguimiento 
+                automático de rendimiento y alertas inteligentes.
+            </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card fade-in" style="animation-delay: 0.3s;">
+            <div class="feature-icon float" style="animation-delay: 1s;">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <h3 class="feature-title">Seguridad Avanzada</h3>
+            <p class="feature-description">
+                Tus datos protegidos con encriptación bancaria y autenticación 
+                multifactor. Tu seguridad es nuestra prioridad.
+            </p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="feature-card fade-in" style="animation-delay: 0.4s;">
+            <div class="feature-icon float" style="animation-delay: 1.5s;">
+                <i class="bi bi-phone"></i>
+            </div>
+            <h3 class="feature-title">Multiplataforma</h3>
+            <p class="feature-description">
+                Accede desde cualquier dispositivo. Diseño responsive optimizado 
+                para desktop, tablet y móvil.
+            </p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="feature-card fade-in" style="animation-delay: 0.5s;">
+            <div class="feature-icon float" style="animation-delay: 2s;">
+                <i class="bi bi-bell"></i>
+            </div>
+            <h3 class="feature-title">Alertas Inteligentes</h3>
+            <p class="feature-description">
+                Notificaciones personalizadas basadas en tus estrategias de 
+                inversión y condiciones de mercado específicas.
+            </p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="feature-card fade-in" style="animation-delay: 0.6s;">
+            <div class="feature-icon float" style="animation-delay: 2.5s;">
+                <i class="bi bi-globe2"></i>
+            </div>
+            <h3 class="feature-title">Mercados Globales</h3>
+            <p class="feature-description">
+                Cobertura completa de los principales mercados internacionales 
+                y divisas con datos precisos y confiables.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats" style="padding: 4rem 0; background: var(--background);">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 1.5rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; text-align: center;">
+            <div class="fade-in">
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">50K+</div>
+                <div style="color: var(--text-secondary);">Usuarios Activos</div>
+            </div>
+            <div class="fade-in" style="animation-delay: 0.1s;">
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--accent); margin-bottom: 0.5rem;">$10B+</div>
+                <div style="color: var(--text-secondary);">Activos Gestionados</div>
+            </div>
+            <div class="fade-in" style="animation-delay: 0.2s;">
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--secondary); margin-bottom: 0.5rem;">99.9%</div>
+                <div style="color: var(--text-secondary);">Tiempo Activo</div>
+            </div>
+            <div class="fade-in" style="animation-delay: 0.3s;">
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;">24</div>
+                <div style="color: var(--text-secondary);">Soporte 24/7</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section style="padding: 6rem 0; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; text-align: center;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 0 1.5rem;">
+        <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem;">
+            ¿Listo para Transformar tu Experiencia de Inversión?
+        </h2>
+        <p style="font-size: 1.125rem; margin-bottom: 2rem; opacity: 0.9;">
+            Únete a miles de inversionistas que ya están tomando el control de su futuro financiero.
+        </p>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('registro') }}" class="btn-pill" style="background: white; color: var(--primary);">
+                    <i class="bi bi-star-fill"></i>
+                    Comenzar Gratis
+                </a>
+                <a href="{{ url_for('login') }}" class="btn-pill" style="background: transparent; color: white; border-color: rgba(255,255,255,0.3);">
+                    <i class="bi bi-play-circle"></i>
+                    Ver Demo
+                </a>
+            {% else %}
+                <a href="{{ url_for('dashboard') }}" class="btn-pill" style="background: white; color: var(--primary);">
+                    <i class="bi bi-speedometer2"></i>
+                    Ir al Dashboard
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

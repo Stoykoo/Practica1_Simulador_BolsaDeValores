@@ -1,0 +1,272 @@
+{% extends "layout.html" %}
+{% block content %}
+<!-- Input hidden para pasar el exchange rate a JavaScript -->
+<input type="hidden" id="exchangeRate" value="{{ exchange_rate }}">
+
+<div class="dashboard-container">
+    <!-- Header del Dashboard -->
+    <div class="dashboard-header fade-in">
+        <div class="welcome-section">
+            <h1 class="dashboard-title">Bienvenido, <span class="username-gradient">{{ current_user.username }}!</span></h1>
+            <p class="dashboard-subtitle">Monitoriza tu portafolio en tiempo real</p>
+        </div>
+        <div class="market-status">
+            <div class="status-indicator live">
+                <i class="bi bi-circle-fill"></i>
+                Mercado en vivo
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarjetas de Resumen -->
+    <div class="summary-cards">
+        <div class="summary-card balance-card slide-in-left">
+            <div class="card-icon">
+                <i class="bi bi-wallet2"></i>
+            </div>
+            <div class="card-content">
+                <h3 class="card-label">Saldo Disponible</h3>
+                <p class="card-value">${{ "%.2f"|format(current_user.cash_balance) }} <span class="currency">MXN</span></p>
+            </div>
+        </div>
+
+        <div class="summary-card portfolio-card slide-in-right">
+            <div class="card-icon">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <div class="card-content">
+                <h3 class="card-label">Valor del Portafolio</h3>
+                <p class="card-value">${{ "%.2f"|format(total_value) }} <span class="currency">USD</span></p>
+            </div>
+        </div>
+
+        <div class="summary-card exchange-card slide-in-left">
+            <div class="card-icon">
+                <i class="bi bi-arrow-left-right"></i>
+            </div>
+            <div class="card-content">
+                <h3 class="card-label">Tipo de Cambio</h3>
+                <p class="card-value">${{ "%.2f"|format(exchange_rate) }} <span class="currency">MXN/USD</span></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Columna Izquierda: Portafolio y Compra -->
+        <div class="dashboard-column">
+            <!-- Mis Acciones -->
+            <div class="dashboard-card portfolio-section fade-in-up">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="bi bi-briefcase"></i>
+                        Mis Acciones
+                    </h2>
+                    <div class="card-actions">
+                        <button class="btn-refresh" id="refreshPortfolio">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    {% if portfolio %}
+                    <div class="stocks-table-container">
+                        <table class="stocks-table">
+                            <thead>
+                                <tr>
+                                    <th>Símbolo</th>
+                                    <th>Nombre</th>
+                                    <th>Precio</th>
+                                    <th>Cambio</th>
+                                    <th>Cantidad</th>
+                                    <th>Valor</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in portfolio %}
+                                <tr class="stock-row" data-symbol="{{ item.symbol }}">
+                                    <td>
+                                        <div class="stock-symbol">
+                                            <span class="symbol">{{ item.symbol }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="stock-name">{{ item.name }}</td>
+                                    <td class="stock-price" data-original-price="{{ item.current_price }}">${{ "%.2f"|format(item.current_price) }}</td>
+                                    <td class="stock-change {{ 'positive' if item.change_today > 0 else 'negative' if item.change_today < 0 else 'neutral' }}">
+                                        {{ "%+.2f"|format(item.change_today) }}%
+                                    </td>
+                                    <td class="stock-quantity">{{ item.quantity }}</td>
+                                    <td class="stock-value">${{ "%.2f"|format(item.total_value) }}</td>
+                                    <td class="stock-actions">
+                                        <form action="/sell" method="POST" class="sell-form">
+                                            <input type="hidden" name="symbol" value="{{ item.symbol }}">
+                                            <div class="action-group">
+                                                <input type="number" name="quantity" min="1" max="{{ item.quantity }}" value="1" class="quantity-input">
+                                                <button type="submit" class="btn-sell">
+                                                    <i class="bi bi-arrow-down-circle"></i>
+                                                    Vender
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="bi bi-briefcase"></i>
+                        </div>
+                        <h3>Portafolio Vacío</h3>
+                        <p>No tienes acciones en tu portafolio. ¡Compra algunas para empezar!</p>
+                        <button class="btn-primary" onclick="scrollToBuy()">
+                            <i class="bi bi-plus-circle"></i>
+                            Comprar Mi Primera Acción
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Comprar Acciones -->
+            <div class="dashboard-card buy-section fade-in-up" id="buySection">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="bi bi-cart-plus"></i>
+                        Comprar Acciones
+                    </h2>
+                </div>
+
+                <div class="card-body">
+                    <form action="/buy" method="POST" class="buy-form">
+                        <div class="form-row">
+                            <div class="select-wrapper">
+                                <i class="bi bi-graph-up select-icon"></i>
+                                <select name="symbol" id="stockSelect" class="form-select" required>
+                                    <option value="">Elige una acción...</option>
+                                    {% for stock in all_stocks %}
+                                    <option value="{{ stock.symbol }}" data-price="{{ stock.current_price }}">
+                                        {{ stock.symbol }} - {{ stock.name }} (${{ "%.2f"|format(stock.current_price) }})
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="input-wrapper">
+                                <i class="bi bi-123 input-icon"></i>
+                                <input type="number" id="quantityInput" name="quantity" min="1" value="1" 
+                                       class="form-input quantity-input" placeholder="Cantidad" required>
+                            </div>
+                        </div>
+
+                        <div class="purchase-summary" id="purchaseSummary" style="display: none;">
+                            <div class="summary-row">
+                                <span>Total en USD:</span>
+                                <span id="totalUsd">$0.00</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Total en MXN:</span>
+                                <span id="totalMxn">$0.00</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-buy">
+                            <i class="bi bi-check-circle"></i>
+                            Confirmar Compra
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Mercado y Tipo de Cambio -->
+        <div class="dashboard-column">
+            <!-- Tipo de Cambio con Actualización en Tiempo Real -->
+            <div class="dashboard-card exchange-rate-card fade-in-up">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="bi bi-currency-exchange"></i>
+                        Tipo de Cambio
+                        <span class="live-badge" id="exchangeLiveBadge">
+                            <i class="bi bi-circle-fill"></i>
+                            LIVE
+                        </span>
+                    </h2>
+                    <div class="card-actions">
+                        <button class="btn-refresh" id="refreshExchangeRate" title="Actualizar tipo de cambio">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="exchange-rate-display">
+                        <div class="rate-value" id="exchangeRateValue">${{ "%.2f"|format(exchange_rate) }}</div>
+                        <div class="rate-label">MXN / USD</div>
+                        <div class="rate-update-time" id="rateUpdateTime">
+                            Actualizado: <span id="updateTime">{{ now.strftime('%H:%M:%S') if now else '' }}</span>
+                        </div>
+                    </div>
+                    <div class="exchange-trend" id="exchangeTrend">
+                        <i class="bi bi-arrow-up" id="trendIcon"></i>
+                        <span id="trendText">Estable</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mercado NASDAQ 500 -->
+            <div class="dashboard-card market-card fade-in-up">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="bi bi-building"></i>
+                        NASDAQ 500 Live
+                    </h2>
+                    <div class="market-indicator live">
+                        <i class="bi bi-play-fill"></i>
+                        LIVE
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="market-table-container">
+                        <table class="market-table">
+                            <thead>
+                                <tr>
+                                    <th>Símbolo</th>
+                                    <th>Precio</th>
+                                    <th>Mercado</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stock in all_stocks %}
+                                {% set change = ((stock.current_price - stock.previous_close) / stock.previous_close * 100) %}
+                                <tr class="market-row">
+                                    <td>
+                                        <div class="stock-symbol-market">
+                                            <span class="symbol">{{ stock.symbol }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="market-price" data-original-price="{{ stock.current_price }}">${{ "%.2f"|format(stock.current_price) }}</td>
+                                    <td class="market-name">NASDAQ</td>
+                                    <td class="market-change {{ 'positive' if change > 0 else 'negative' if change < 0 else 'neutral' }}">
+                                        {{ "%+.2f"|format(change|round(2)) }}%
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='js/exchange.js') }}"></script>
+{% endblock %}
